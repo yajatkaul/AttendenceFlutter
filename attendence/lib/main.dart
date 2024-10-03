@@ -1,3 +1,5 @@
+import 'package:attendence/components/date.dart';
+import 'package:attendence/components/user.dart';
 import 'package:attendence/page/add_date.dart';
 import 'package:attendence/page/add_newuser.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +55,13 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
+          const Column(
+            children: [
+              DateCard(
+                date: "2012-3-2",
+              ),
+            ],
+          )
         ],
       ),
       Stack(
@@ -83,6 +92,11 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
+          Column(
+            children: [
+              Users(name: "Name1"),
+            ],
+          )
         ],
       ),
     ];
