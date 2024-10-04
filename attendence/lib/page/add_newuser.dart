@@ -38,6 +38,7 @@ class AddUser extends StatelessWidget {
         if (response.statusCode == 200) {
           // Success, handle the response as needed
           print('User created successfully');
+          Navigator.pop(context, true);
         } else {
           // Handle errors
           print('Error: ${response.statusCode}');

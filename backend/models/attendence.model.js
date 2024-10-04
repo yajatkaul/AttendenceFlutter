@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 const attendenceSchema = new mongoose.Schema(
   {
     date: {
-      type: Date,
+      type: String,
       required: true,
     },
     users: [
@@ -14,6 +14,14 @@ const attendenceSchema = new mongoose.Schema(
         default: [],
       },
     ],
+    total: {
+      type: String,
+      required: true,
+    },
+    present: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );

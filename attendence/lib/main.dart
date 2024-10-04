@@ -159,6 +159,8 @@ class _HomePageState extends State<HomePage> {
                 return Column(children: [
                   DateCard(
                     date: dates['date'] ?? "",
+                    totalStudents: dates["total"] ?? "",
+                    presentStudents: dates["present"] ?? "",
                   ),
                   const SizedBox(height: 10),
                 ]);
@@ -184,12 +186,7 @@ class _HomePageState extends State<HomePage> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => AddDate()),
-                  );
-                },
+                onTap: () => _navigateAndRefreshDates(context),
                 child: const Icon(
                   Icons.add,
                   size: 40,
@@ -197,13 +194,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          /*const Column(
-            children: [
-              DateCard(
-                date: "2012-3-2",
-              ),
-            ],
-          )*/
         ],
       ),
       Stack(
@@ -243,14 +233,7 @@ class _HomePageState extends State<HomePage> {
                 borderRadius: BorderRadius.circular(20),
               ),
               child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            AddUser()), // Navigate to AddDate page
-                  );
-                },
+                onTap: () => _navigateAndRefresh(context),
                 child: const Icon(
                   Icons.add,
                   size: 40,
@@ -258,11 +241,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-          /*Column(
-            children: [
-              Users(name: "Name1"),
-            ],
-          )*/
         ],
       ),
     ];
@@ -272,6 +250,36 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  Future<void> _navigateAndRefresh(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddUser()),
+    );
+
+    // If the result is true, it means a date was added, so we refresh the data
+    if (result == true) {
+      _users.clear(); // Clear existing dates
+      _currentPageUsers = 1; // Reset pagination
+      _hasMoreUsers = true; // Reset hasMore
+      _fetchDataUsers(); // Fetch the new data
+    }
+  }
+
+  Future<void> _navigateAndRefreshDates(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddDate()),
+    );
+
+    // If the result is true, it means a date was added, so we refresh the data
+    if (result == true) {
+      _dates.clear(); // Clear existing dates
+      _currentPage = 1; // Reset pagination for dates
+      _hasMore = true; // Reset hasMore for dates
+      _fetchData(); // Fetch the new dates data
+    }
   }
 
   @override

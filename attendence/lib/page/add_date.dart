@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:attendence/components/user.dart';
+import 'package:attendence/components/user_present.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -17,6 +17,9 @@ class _AddDateState extends State<AddDate> {
   bool _isLoading = false;
   bool _hasMore = true;
   final int _limit = 20;
+
+  // Map to track the present status of users
+  Map<String, bool> userPresentStatus = {};
 
   @override
   void initState() {
@@ -63,7 +66,12 @@ class _AddDateState extends State<AddDate> {
           _currentPage++;
           _isLoading = false;
 
-          // If fewer papers are returned than the limit, it means there's no more data
+          // Initialize user present status with false for all new users
+          for (var user in newUsers) {
+            userPresentStatus[user['_id']] = false;
+          }
+
+          // If fewer users are returned than the limit, it means there's no more data
           if (newUsers.length < _limit) {
             _hasMore = false;
             print('No more users to load');
@@ -78,6 +86,51 @@ class _AddDateState extends State<AddDate> {
         _isLoading = false;
       });
       print('Error fetching data: $e');
+    }
+  }
+
+  Future<void> _postPresentUsers() async {
+    // Ensure a date is selected
+    if (selectedDate == null) {
+      print("Please select a date first.");
+      return;
+    }
+
+    // Filter users who are present
+    List<String> presentUsers = userPresentStatus.entries
+        .where((entry) => entry.value == true)
+        .map((entry) => entry.key)
+        .toList();
+
+    // If no users are marked as present, return early
+    if (presentUsers.isEmpty) {
+      print("No users are marked as present.");
+      return;
+    }
+
+    // Prepare the POST body
+    final body = jsonEncode({
+      'date': DateFormat('yyyy-MM-dd').format(selectedDate!),
+      'users': presentUsers,
+    });
+
+    const url =
+        "http://192.168.1.9:5000/api/data/createDates"; // Replace with your actual POST endpoint
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.pop(context, true);
+        print('Data posted successfully!');
+      } else {
+        print('Failed to post data. Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error posting data: $e');
     }
   }
 
@@ -108,57 +161,73 @@ class _AddDateState extends State<AddDate> {
             },
             child: Text(
               selectedDate == null
-                  ? 'Select Date' // If no date is selected, display this
+                  ? 'Select Date'
                   : "Date: ${DateFormat('yyyy-MM-dd').format(selectedDate!)}",
-              style: TextStyle(fontSize: 32, color: Colors.black),
+              style: const TextStyle(fontSize: 32, color: Colors.black),
             ),
           ),
           const SizedBox(height: 10), // Adding spacing
           Expanded(
-            // This ensures that the ListView takes available space
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: _users.length + (_hasMore ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index < _users.length) {
-                  final users = _users[index];
-                  return Column(
-                    children: [
-                      Users(
-                        name: users['displayName'] ?? "",
-                      ),
-                      const SizedBox(height: 10),
-                    ],
-                  );
-                } else if (_hasMore) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                } else {
-                  return const SizedBox(); // Return an empty widget when there are no more items
-                }
-              },
-            ),
-          ),
-          Positioned(
-            bottom: 20,
-            left: 20,
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black),
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: GestureDetector(
-                onTap: () {},
-                child: const Icon(
-                  Icons.add,
-                  size: 40,
+            child: Stack(
+              children: [
+                ListView.builder(
+                  controller: _scrollController,
+                  itemCount: _users.length + (_hasMore ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index < _users.length) {
+                      final user = _users[index];
+                      String userName = user['displayName'] ?? "";
+
+                      return Column(
+                        children: [
+                          UsersPresent(
+                            name: userName,
+                            // Handle present status change
+                            onPresentChanged: (bool isPresent) {
+                              setState(() {
+                                userPresentStatus[user["_id"]] = isPresent;
+                              });
+                              print(
+                                  "User: ${user["_id"]}, Present: $isPresent");
+                            },
+                          ),
+                          const SizedBox(height: 10),
+                        ],
+                      );
+                    } else if (_hasMore) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    } else {
+                      return const SizedBox(); // Return an empty widget when there are no more items
+                    }
+                  },
                 ),
-              ),
+                Positioned(
+                  bottom: 20,
+                  left: 20,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.green),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: GestureDetector(
+                      onTap: () {
+                        _postPresentUsers();
+                      },
+                      child: const Icon(
+                        Icons.check,
+                        color: Colors.green,
+                        size: 40,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],

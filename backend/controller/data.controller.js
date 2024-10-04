@@ -52,9 +52,13 @@ export const createDates = async (req, res) => {
   try {
     const data = req.body;
 
+    const users = await User.find();
+
     const newDate = new Attendence({
       date: data.date,
       users: data.users,
+      total: Object.keys(users).length,
+      present: data.users.length,
     });
 
     await newDate.save();
