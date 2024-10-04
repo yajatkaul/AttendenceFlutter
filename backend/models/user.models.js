@@ -6,7 +6,6 @@ const userSchema = new mongoose.Schema(
     displayName: {
       type: String,
       required: true,
-      minlength: 5,
     },
   },
   { timestamps: true }
