@@ -12,7 +12,7 @@ class Users extends StatelessWidget {
           width: 20,
         ),
         Image.network(
-          'https://avatar.iran.liara.run/public/boy?username=Scott', // Example placeholder image
+          "https://avatar.iran.liara.run/public/boy?username=$name", // Example placeholder image
           width: 70,
           height: 70,
         ),

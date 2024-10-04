@@ -3,7 +3,12 @@ import User from "../models/user.models.js";
 
 export const getUsers = async (req, res) => {
   try {
-    const users = await User.find();
+    const { page = 1, limit = 20 } = req.query;
+
+    const users = await User.find()
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit));
+
     res.status(200).json(users);
   } catch (err) {
     console.log(err);
@@ -16,7 +21,7 @@ export const createUsers = async (req, res) => {
     const data = req.body;
 
     const newUser = new User({
-      displayName: data.name,
+      displayName: data.displayName,
     });
 
     await newUser.save();
@@ -30,7 +35,12 @@ export const createUsers = async (req, res) => {
 
 export const getDates = async (req, res) => {
   try {
-    const attendence = await Attendence.find();
+    const { page = 1, limit = 20 } = req.query;
+
+    const attendence = await Attendence.find()
+      .skip((page - 1) * limit)
+      .limit(parseInt(limit));
+
     res.status(200).json(attendence);
   } catch (err) {
     console.log(err);

@@ -1,10 +1,17 @@
-import express from "express";
-import { getUsers } from "../controller/data.controller.js";
+import express, { Router } from "express";
+import {
+  createDates,
+  createUsers,
+  getDates,
+  getUsers,
+} from "../controller/data.controller.js";
 
 const router = express.Router();
 
 router.get("/getUsers", getUsers);
+router.get("/dates", getDates);
 
-router.post("/createUsers", getUsers);
+router.post("/createDates", createDates);
+router.post("/createUsers", createUsers);
 
 export default router;

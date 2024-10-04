@@ -1,8 +1,53 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class AddUser extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    TextEditingController _nameController = TextEditingController();
+
+    Future<void> _sendData() async {
+      final String displayName = _nameController.text;
+
+      if (displayName.isEmpty) {
+        // You can show a message or validation if the name is empty
+        return;
+      }
+
+      // Define your API URL
+      const String apiUrl = 'http://192.168.1.9:5000/api/data/createUsers';
+
+      // Create the JSON payload
+      final Map<String, dynamic> data = {
+        'displayName': displayName,
+      };
+
+      try {
+        // Send the POST request
+        final response = await http.post(
+          Uri.parse(apiUrl),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(data),
+        );
+
+        // Check the response status
+        if (response.statusCode == 200) {
+          // Success, handle the response as needed
+          print('User created successfully');
+        } else {
+          // Handle errors
+          print('Error: ${response.statusCode}');
+        }
+      } catch (e) {
+        // Handle any exceptions
+        print('Failed to send data: $e');
+      }
+    }
+
     return Scaffold(
         appBar: AppBar(
           title: Text('New User'),
@@ -13,6 +58,7 @@ class AddUser extends StatelessWidget {
             Container(
               margin: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
               child: TextField(
+                  controller: _nameController,
                   decoration: InputDecoration(
                       labelText: "Name",
                       border: OutlineInputBorder(
@@ -28,7 +74,7 @@ class AddUser extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: InkWell(
-                  onTap: () {},
+                  onTap: _sendData,
                   child: const Icon(
                     Icons.check,
                     color: Colors.green,
