@@ -28,9 +28,9 @@ class _DatePageState extends State<DatePage> {
       if (response.statusCode == 200) {
         // Parse the JSON response as a map
         final Map<String, dynamic> responseData = json.decode(response.body);
-
         // Assuming the list of data is stored in a field called 'data' in the JSON
         final List<dynamic> data = responseData['users'] as List<dynamic>;
+        print(data);
 
         setState(() {
           _presentData = data;
@@ -69,7 +69,8 @@ class _DatePageState extends State<DatePage> {
               : ListView.builder(
                   itemCount: _presentData.length,
                   itemBuilder: (context, index) {
-                    final item = _presentData[index]; // Access the JSON object
+                    final item =
+                        _presentData[0][index]; // Access the JSON object
 
                     return Row(
                       children: [

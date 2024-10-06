@@ -332,7 +332,10 @@ class _HomePageState extends State<HomePage> {
                         await _deleteUser(user["_id"]);
                         await _fetchDataUsers();
                       },
-                      child: const Icon(Icons.delete),
+                      child: const Icon(
+                        Icons.delete,
+                        color: Colors.black,
+                      ),
                     ),
                   ],
                 );

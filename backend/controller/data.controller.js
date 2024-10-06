@@ -53,10 +53,11 @@ export const createDates = async (req, res) => {
     const data = req.body;
 
     const users = await User.find();
+    const presentUsers = await User.find({ _id: { $in: data.users } });
 
     const newDate = new Attendence({
       date: data.date,
-      users: data.users,
+      users: presentUsers,
       total: Object.keys(users).length,
       present: data.users.length,
     });
@@ -74,7 +75,7 @@ export const getPresent = async (req, res) => {
   try {
     const id = req.params.id;
 
-    const users = await Attendence.findById(id).populate("users");
+    const users = await Attendence.findById(id);
 
     res.status(200).json(users);
   } catch (err) {
