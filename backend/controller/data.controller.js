@@ -69,3 +69,29 @@ export const createDates = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+export const getPresent = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const users = await Attendence.findById(id).populate("users");
+
+    res.status(200).json(users);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const deleteUser = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    await User.findByIdAndDelete(id);
+
+    res.status(200).json({ result: "Success" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

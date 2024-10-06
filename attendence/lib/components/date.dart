@@ -2,13 +2,15 @@ import 'package:attendence/page/date_page.dart';
 import 'package:flutter/material.dart';
 
 class DateCard extends StatelessWidget {
+  final String id;
   final String date;
   final String totalStudents, presentStudents;
   const DateCard(
       {super.key,
       required this.date,
       required this.totalStudents,
-      required this.presentStudents});
+      required this.presentStudents,
+      required this.id});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +18,10 @@ class DateCard extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => DatePage()),
+            MaterialPageRoute(
+                builder: (context) => DatePage(
+                      id: id,
+                    )),
           );
         },
         child: Row(

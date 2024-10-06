@@ -19,7 +19,7 @@ class Users extends StatelessWidget {
         const SizedBox(
           width: 10,
         ),
-        Text(name, style: const TextStyle(fontSize: 24))
+        Text(name, style: const TextStyle(fontSize: 24)),
       ],
     );
   }

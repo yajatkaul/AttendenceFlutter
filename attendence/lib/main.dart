@@ -4,7 +4,6 @@ import 'package:attendence/components/user.dart';
 import 'package:attendence/page/add_date.dart';
 import 'package:attendence/page/add_newuser.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
@@ -29,6 +28,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   final ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollControllerUsers = ScrollController();
+
   List<dynamic> _dates = [];
   int _currentPage = 1;
   bool _isLoading = false;
@@ -56,12 +57,20 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _onScrollUsers() {
+    if (_scrollControllerUsers.position.pixels ==
+        _scrollControllerUsers.position.maxScrollExtent) {
+      _fetchDataUsers(); // Fetch more users
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _fetchData();
     _fetchDataUsers();
     _scrollController.addListener(_onScroll);
+    _scrollControllerUsers.addListener(_onScrollUsers);
   }
 
   Future<void> _fetchData() async {
@@ -130,16 +139,20 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           _users.addAll(newUsers);
           _currentPageUsers++;
-          _isLoadingUsers = false;
 
-          if (newUsers.length < _limit) {
+          // Check if there are more users to load
+          if (newUsers.length < _limit || newUsers.isEmpty) {
             _hasMoreUsers = false;
             print('No more users to load');
           }
+
+          _isLoadingUsers = false;
         });
       } else {
         print('Error: ${response.statusCode}');
-        throw Exception('Failed to load data');
+        setState(() {
+          _isLoadingUsers = false;
+        });
       }
     } catch (e) {
       setState(() {
@@ -173,6 +186,46 @@ class _HomePageState extends State<HomePage> {
     if (picked != null && picked != _selectedFinalDate) {
       setState(() {
         _selectedFinalDate = picked; // Update the selected date
+      });
+    }
+  }
+
+  Future<void> _deleteUser(id) async {
+    // Define your API URL
+    String apiUrl = 'http://192.168.1.7:5000/api/data/deleteUser/$id';
+
+    try {
+      // Send the DELETE request (consider using http.delete instead of http.get)
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        print('User deleted successfully');
+
+        // Clear and reset user data
+        setState(() {
+          _users.clear();
+          _currentPageUsers = 1;
+          _hasMoreUsers = true;
+          _isLoadingUsers = true;
+        });
+
+        // Fetch updated user data
+        await _fetchDataUsers();
+
+        // Reset loading state
+        setState(() {
+          _isLoadingUsers = false;
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+        setState(() {
+          _isLoadingUsers = false;
+        });
+      }
+    } catch (e) {
+      print('Failed to send data: $e');
+      setState(() {
+        _isLoadingUsers = false;
       });
     }
   }
@@ -220,6 +273,7 @@ class _HomePageState extends State<HomePage> {
                           date: dates['date'] ?? "",
                           totalStudents: dates["total"] ?? "",
                           presentStudents: dates["present"] ?? "",
+                          id: dates["_id"],
                         ),
                         const SizedBox(height: 10),
                       ]);
@@ -262,18 +316,27 @@ class _HomePageState extends State<HomePage> {
         fit: StackFit.expand,
         children: [
           ListView.builder(
-            controller: _scrollController,
+            controller: _scrollControllerUsers,
             itemCount: _users.length + (_hasMoreUsers ? 1 : 0),
             itemBuilder: (context, index) {
               if (index < _users.length) {
-                final users = _users[index];
-                return Column(children: [
-                  Users(
-                    name: users['displayName'] ?? "",
-                  ),
-                  const SizedBox(height: 10),
-                ]);
-              } else if (_hasMoreUsers) {
+                final user = _users[index];
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Users(
+                      name: user['displayName'] ?? "",
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await _deleteUser(user["_id"]);
+                        await _fetchDataUsers();
+                      },
+                      child: const Icon(Icons.delete),
+                    ),
+                  ],
+                );
+              } else if (_isLoadingUsers) {
                 return const Center(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
