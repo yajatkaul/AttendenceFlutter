@@ -82,8 +82,20 @@ class _HomePageState extends State<HomePage> {
       _isLoading = true;
     });
 
-    final url =
+    // Build the base URL
+    String url =
         "http://192.168.1.7:5000/api/data/dates?page=$_currentPage&limit=$_limit";
+
+    // Add start_date and end_date if they are selected
+    if (_selectedDate != null) {
+      String startDateStr = DateFormat('yyyy-MM-dd').format(_selectedDate!);
+      url += "&start_date=$startDateStr";
+    }
+    if (_selectedFinalDate != null) {
+      String endDateStr = DateFormat('yyyy-MM-dd').format(_selectedFinalDate!);
+      url += "&end_date=$endDateStr";
+    }
+
     print('Fetching data from: $url');
 
     try {
@@ -98,7 +110,7 @@ class _HomePageState extends State<HomePage> {
           _currentPage++;
           _isLoading = false;
 
-          // If fewer papers are returned than the limit, it means there's no more data
+          // Check if more data is available
           if (newDates.length < _limit) {
             _hasMore = false;
             print('No more dates to load');
@@ -106,7 +118,9 @@ class _HomePageState extends State<HomePage> {
         });
       } else {
         print('Error: ${response.statusCode}');
-        throw Exception('Failed to load data');
+        setState(() {
+          _isLoading = false;
+        });
       }
     } catch (e) {
       setState(() {
@@ -165,28 +179,41 @@ class _HomePageState extends State<HomePage> {
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(), // Set the initial date
-      firstDate: DateTime(2000), // Set the earliest date that can be selected
-      lastDate: DateTime(2101), // Set the latest date that can be selected
+      initialDate: _selectedDate ??
+          DateTime.now(), // Use previously selected date or current date
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
     );
-    if (picked != null && picked != _selectedDate) {
+    if (picked != null) {
       setState(() {
-        _selectedDate = picked; // Update the selected date
+        _selectedDate = picked;
+        // Reset pagination and data variables
+        _dates.clear();
+        _currentPage = 1;
+        _hasMore = true;
       });
+      // Fetch new data
+      _fetchData();
     }
   }
 
   Future<void> _selectFinalDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(), // Set the initial date
-      firstDate: DateTime(2000), // Set the earliest date that can be selected
-      lastDate: DateTime(2101), // Set the latest date that can be selected
+      initialDate: _selectedFinalDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
     );
-    if (picked != null && picked != _selectedFinalDate) {
+    if (picked != null) {
       setState(() {
-        _selectedFinalDate = picked; // Update the selected date
+        _selectedFinalDate = picked;
+        // Reset pagination and data variables
+        _dates.clear();
+        _currentPage = 1;
+        _hasMore = true;
       });
+      // Fetch new data
+      _fetchData();
     }
   }
 
@@ -249,7 +276,7 @@ class _HomePageState extends State<HomePage> {
                       style: const TextStyle(color: Colors.black),
                     ),
                   ),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 10),
                   ElevatedButton(
                     onPressed: () => _selectFinalDate(context),
                     child: Text(
@@ -258,6 +285,24 @@ class _HomePageState extends State<HomePage> {
                                 .format(_selectedFinalDate!)
                             : 'Final Date',
                         style: const TextStyle(color: Colors.black)),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _selectedDate = null;
+                        _dates.clear();
+                        _currentPage = 1;
+                        _hasMore = true;
+                      });
+                      _fetchData();
+                    },
+                    child: const Icon(
+                      Icons.refresh,
+                      color: Colors.black,
+                    ),
                   ),
                 ],
               ),

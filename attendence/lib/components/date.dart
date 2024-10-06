@@ -1,5 +1,6 @@
 import 'package:attendence/page/date_page.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class DateCard extends StatelessWidget {
   final String id;
@@ -35,7 +36,7 @@ class DateCard extends StatelessWidget {
                   color: Colors.black,
                 ),
                 Text(
-                  date,
+                  DateFormat('yyyy-MM-dd').format(DateTime.parse(date)!),
                   style: const TextStyle(fontSize: 38, color: Colors.black),
                 ),
               ],
