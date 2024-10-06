@@ -8,7 +8,7 @@ class Users extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        SizedBox(
+        const SizedBox(
           width: 20,
         ),
         Image.network(
@@ -16,10 +16,10 @@ class Users extends StatelessWidget {
           width: 70,
           height: 70,
         ),
-        SizedBox(
+        const SizedBox(
           width: 10,
         ),
-        Text(name, style: TextStyle(fontSize: 24))
+        Text(name, style: const TextStyle(fontSize: 24))
       ],
     );
   }

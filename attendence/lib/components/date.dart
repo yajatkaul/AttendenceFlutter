@@ -1,3 +1,4 @@
+import 'package:attendence/page/date_page.dart';
 import 'package:flutter/material.dart';
 
 class DateCard extends StatelessWidget {
@@ -11,26 +12,34 @@ class DateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
+    return ElevatedButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => DatePage()),
+          );
+        },
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Icon(
-              Icons.date_range,
-              size: 45,
+            Row(
+              children: [
+                const Icon(
+                  Icons.date_range,
+                  size: 45,
+                  color: Colors.black,
+                ),
+                Text(
+                  date,
+                  style: const TextStyle(fontSize: 38, color: Colors.black),
+                ),
+              ],
             ),
             Text(
-              date,
-              style: TextStyle(fontSize: 38),
-            ),
+              "$presentStudents/$totalStudents",
+              style: const TextStyle(fontSize: 24, color: Colors.black),
+            )
           ],
-        ),
-        Text(
-          "$totalStudents/$presentStudents",
-          style: TextStyle(fontSize: 24),
-        )
-      ],
-    );
+        ));
   }
 }
