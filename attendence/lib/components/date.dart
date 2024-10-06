@@ -12,17 +12,19 @@ class DateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Icon(
-          Icons.date_range,
-          size: 45,
-        ),
-        Text(
-          date,
-          style: TextStyle(fontSize: 38),
-        ),
-        const SizedBox(
-          width: 90,
+        Row(
+          children: [
+            Icon(
+              Icons.date_range,
+              size: 45,
+            ),
+            Text(
+              date,
+              style: TextStyle(fontSize: 38),
+            ),
+          ],
         ),
         Text(
           "$totalStudents/$presentStudents",

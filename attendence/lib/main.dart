@@ -4,7 +4,9 @@ import 'package:attendence/components/user.dart';
 import 'package:attendence/page/add_date.dart';
 import 'package:attendence/page/add_newuser.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(MyApp());
@@ -38,6 +40,9 @@ class _HomePageState extends State<HomePage> {
   bool _isLoadingUsers = false;
   bool _hasMoreUsers = true;
 
+  DateTime? _selectedDate;
+  DateTime? _selectedFinalDate;
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -69,7 +74,7 @@ class _HomePageState extends State<HomePage> {
     });
 
     final url =
-        "http://192.168.1.9:5000/api/data/dates?page=$_currentPage&limit=$_limit";
+        "http://192.168.1.7:5000/api/data/dates?page=$_currentPage&limit=$_limit";
     print('Fetching data from: $url');
 
     try {
@@ -112,7 +117,7 @@ class _HomePageState extends State<HomePage> {
     });
 
     final url =
-        "http://192.168.1.9:5000/api/data/getUsers?page=$_currentPageUsers&limit=$_limit";
+        "http://192.168.1.7:5000/api/data/getUsers?page=$_currentPageUsers&limit=$_limit";
     print('Fetching data from: $url');
 
     try {
@@ -127,7 +132,6 @@ class _HomePageState extends State<HomePage> {
           _currentPageUsers++;
           _isLoadingUsers = false;
 
-          // If fewer papers are returned than the limit, it means there's no more data
           if (newUsers.length < _limit) {
             _hasMoreUsers = false;
             print('No more users to load');
@@ -145,36 +149,94 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(), // Set the initial date
+      firstDate: DateTime(2000), // Set the earliest date that can be selected
+      lastDate: DateTime(2101), // Set the latest date that can be selected
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked; // Update the selected date
+      });
+    }
+  }
+
+  Future<void> _selectFinalDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(), // Set the initial date
+      firstDate: DateTime(2000), // Set the earliest date that can be selected
+      lastDate: DateTime(2101), // Set the latest date that can be selected
+    );
+    if (picked != null && picked != _selectedFinalDate) {
+      setState(() {
+        _selectedFinalDate = picked; // Update the selected date
+      });
+    }
+  }
+
   List<Widget> _widgetOptions(BuildContext context) {
     return <Widget>[
       Stack(
         fit: StackFit.expand,
         children: [
-          ListView.builder(
-            controller: _scrollController,
-            itemCount: _dates.length + (_hasMore ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index < _dates.length) {
-                final dates = _dates[index];
-                return Column(children: [
-                  DateCard(
-                    date: dates['date'] ?? "",
-                    totalStudents: dates["total"] ?? "",
-                    presentStudents: dates["present"] ?? "",
+          Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => _selectDate(context),
+                    child: Text(
+                      _selectedDate != null
+                          ? DateFormat('yyyy-MM-dd').format(_selectedDate!)
+                          : 'Start Date',
+                      style: const TextStyle(color: Colors.black),
+                    ),
                   ),
-                  const SizedBox(height: 10),
-                ]);
-              } else if (_hasMore) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(),
+                  const SizedBox(width: 20),
+                  ElevatedButton(
+                    onPressed: () => _selectFinalDate(context),
+                    child: Text(
+                        _selectedFinalDate != null
+                            ? DateFormat('yyyy-MM-dd')
+                                .format(_selectedFinalDate!)
+                            : 'Final Date',
+                        style: const TextStyle(color: Colors.black)),
                   ),
-                );
-              } else {
-                return const SizedBox();
-              }
-            },
+                ],
+              ),
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemCount: _dates.length + (_hasMore ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index < _dates.length) {
+                      final dates = _dates[index];
+                      return Column(children: [
+                        DateCard(
+                          date: dates['date'] ?? "",
+                          totalStudents: dates["total"] ?? "",
+                          presentStudents: dates["present"] ?? "",
+                        ),
+                        const SizedBox(height: 10),
+                      ]);
+                    } else if (_hasMore) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    } else {
+                      return const SizedBox();
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
           Positioned(
             bottom: 20,
@@ -211,7 +273,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 10),
                 ]);
-              } else if (_hasMore) {
+              } else if (_hasMoreUsers) {
                 return const Center(
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
@@ -219,7 +281,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 );
               } else {
-                return const SizedBox(); // Return an empty widget when there are no more items
+                return const SizedBox();
               }
             },
           ),

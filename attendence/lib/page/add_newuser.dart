@@ -17,7 +17,7 @@ class AddUser extends StatelessWidget {
       }
 
       // Define your API URL
-      const String apiUrl = 'http://192.168.1.9:5000/api/data/createUsers';
+      const String apiUrl = 'http://192.168.1.7:5000/api/data/createUsers';
 
       // Create the JSON payload
       final Map<String, dynamic> data = {
