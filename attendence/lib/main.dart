@@ -84,7 +84,7 @@ class _HomePageState extends State<HomePage> {
 
     // Build the base URL
     String url =
-        "http://192.168.1.7:5000/api/data/dates?page=$_currentPage&limit=$_limit";
+        "http://82.112.238.10:9000/api/data/dates?page=$_currentPage&limit=$_limit";
 
     // Add start_date and end_date if they are selected
     if (_selectedDate != null) {
@@ -140,7 +140,7 @@ class _HomePageState extends State<HomePage> {
     });
 
     final url =
-        "http://192.168.1.7:5000/api/data/getUsers?page=$_currentPageUsers&limit=$_limit";
+        "http://82.112.238.10:9000/api/data/getUsers?page=$_currentPageUsers&limit=$_limit";
     print('Fetching data from: $url');
 
     try {
@@ -219,7 +219,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _deleteUser(id) async {
     // Define your API URL
-    String apiUrl = 'http://192.168.1.7:5000/api/data/deleteUser/$id';
+    String apiUrl = 'http://82.112.238.10:9000/api/data/deleteUser/$id';
 
     try {
       // Send the DELETE request (consider using http.delete instead of http.get)
@@ -293,6 +293,7 @@ class _HomePageState extends State<HomePage> {
                     onPressed: () {
                       setState(() {
                         _selectedDate = null;
+                        _selectedFinalDate = null;
                         _dates.clear();
                         _currentPage = 1;
                         _hasMore = true;

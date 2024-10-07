@@ -17,7 +17,7 @@ class AddUser extends StatelessWidget {
       }
 
       // Define your API URL
-      const String apiUrl = 'http://192.168.1.7:5000/api/data/createUsers';
+      const String apiUrl = 'http://82.112.238.10:9000/api/data/createUsers';
 
       // Create the JSON payload
       final Map<String, dynamic> data = {
@@ -51,16 +51,16 @@ class AddUser extends StatelessWidget {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text('New User'),
+          title: const Text('New User'),
         ),
         body: Stack(
           fit: StackFit.expand,
           children: [
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+              margin: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
               child: TextField(
                   controller: _nameController,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                       labelText: "Name",
                       border: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.black)))),

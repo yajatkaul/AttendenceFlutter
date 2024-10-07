@@ -51,7 +51,7 @@ class _AddDateState extends State<AddDate> {
     });
 
     final url =
-        "http://192.168.1.7:5000/api/data/getUsers?page=$_currentPage&limit=$_limit";
+        "http://82.112.238.10:9000/api/data/getUsers?page=$_currentPage&limit=$_limit";
     print('Fetching data from: $url');
 
     try {
@@ -115,7 +115,7 @@ class _AddDateState extends State<AddDate> {
     });
 
     const url =
-        "http://192.168.1.7:5000/api/data/createDates"; // Replace with your actual POST endpoint
+        "http://82.112.238.10:9000/api/data/createDates"; // Replace with your actual POST endpoint
     try {
       final response = await http.post(
         Uri.parse(url),

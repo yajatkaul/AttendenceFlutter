@@ -49,7 +49,7 @@ class _DatePageState extends State<DatePage> {
   Future<void> fetchPresentData() async {
     try {
       final response = await http.get(Uri.parse(
-          'http://192.168.1.7:5000/api/data/getPresent/${widget.id}'));
+          'http://82.112.238.10:9000/api/data/getPresent/${widget.id}'));
 
       if (response.statusCode == 200) {
         // Parse the JSON response as a map
